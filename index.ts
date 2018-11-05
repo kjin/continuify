@@ -1,3 +1,8 @@
+declare const global: {
+  continuify: (fn: Function) => Function,
+  getCurrentContext: () => Context
+};
+
 interface Continuation {
   linkContext: Context|null;
 }
