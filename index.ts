@@ -13,7 +13,6 @@ interface Context {
   continuation: Continuation;
 }
 
-
 function polyfillContinuify(exports: any) {
   let activeContexts: Context[] = [];
   let nextInvocationID = 1;

@@ -3,7 +3,7 @@ Despite Promises being implemented natively within the VM, I believe it is possi
 This relies on the pre-requisite assumptions:
 1. Although a single function typically won't be `continuify`'d multiple times, it is possible for us to be running in multiple `continuify`'d functions at the same time. See [`pooled-read-file`](./pooled-read-file.js) for an example of this.
 1. There is a well-defined order in which we invoked each one of the `continuify`'d functions. It is the order in which they are placed on the stack.
-1. The `linkContext` of the first such continuation is the `readyContext` of subsequent continuations.
+1. The `linkContext` of the first such continuation is the `readyContext` of subsequent continuations. See [my `continuify` implementation](./index.ts) as a concrete implementation of this.
     1. It follows that only the first entered continuation is _guaranteed_ to have the same `linkContext` and `readyContext`. Subsequent continuations _may_ have this property, but it's not guaranteed (each instance where the two are not the same is an instance of userspace queueing).
 
 Whether the reader agrees with the above assertions or not, I believe most readers will agree that `Promise#then` should behave as if it called `continuify` on callbacks that are passed to it. By doing so, the linking context of the callback will (correctly) be attributed to the context in which `then` was called, regardless of where the Promise was resolved. This means that a (greatly simplified) implementation of `Promise` might roughly look like this:

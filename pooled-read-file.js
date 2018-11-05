@@ -1,16 +1,15 @@
 require('.');
 const fs = require('fs');
 // Monkeypatch readFile to continuify.
-fs.readFile = (() => {
-  const rfInternal = fs.readFile;
+fs.readFile = ((fn) => {
   return (...args) => {
     let cb = args[args.length - 1];
     // Continuify cb.
-    cb = continuify(cb, 'readFile');
+    cb = continuify(cb);
     args[args.length - 1] = cb;
-    return rfInternal(...args);
+    return fn(...args);
   };
-})();
+})(fs.readFile);
 
 /**
  * Like fs.readFile, but only allows MAX_CONCURRENT_READS simultaneous open
@@ -25,7 +24,7 @@ const pooledReadFile = (() => {
     // Retrieve the callback, assuming that the callback comes last.
     let cb = readFileArgs[readFileArgs.length - 1];
     // Continuify cb.
-    cb = continuify(cb, 'pooledReadFile');
+    cb = continuify(cb);
     // Wrap cb to also drain queued requests.
     readFileArgs[readFileArgs.length - 1] = function readFileCb(...cbArgs) {
       numConcurrentReads--;
